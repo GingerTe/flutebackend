@@ -1,0 +1,6 @@
+---
+install_requirements: false
+flute_dir: /opt/flute
+remove_old_poi: false
+flute_java_libs: []
+flute_extra_properties: []

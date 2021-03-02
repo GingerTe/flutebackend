@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: Maria Prudyvus
+  description: Flute score and lib installation for linux
+  company: Course
+  license: MIT
+  min_ansible_version: 2.3
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+        - xenial
+
+  galaxy_tags:
+    - development

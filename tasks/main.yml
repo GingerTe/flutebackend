@@ -1,0 +1,92 @@
+---
+- name: install needed packages
+  apt:
+    name: [subversion]
+
+- name: stopping flute
+  service:
+    name: flute
+    state: stopped
+
+- name: SVN update
+  subversion:
+    repo: "{{ item.path }}"
+    dest: "{{ flute_dir }}/score/{{ item.name | default(item.path.split('/')[-2]) }}"
+    username: "{{ svn_user }}"
+    password: "{{ svn_pwd }}"
+
+  with_items: "{{ flute_scores }}"
+
+  register: svn_update
+
+- name: SVN grains settings
+  subversion:
+    repo: "{{ svn_url }}/grainsSettings.xml"
+    dest: "{{ flute_dir }}/score/grainsSettings.xml"
+    username: "{{ svn_user }}"
+    password: "{{ svn_pwd }}"
+    export: true
+    force: true
+
+- name: SVN user grains settings
+  template:
+    src: "{{ user_grains_settings }}"
+    dest: "{{ flute_dir }}/score/userGrainsSettings.xml"
+    mode: 0640
+    owner: flute3
+  when: user_grains_settings is defined
+
+- block:
+  - name: SVN requirements
+    subversion:
+      repo: "{{ svn_url }}/requirements.txt"
+      dest: "{{ flute_dir }}/score/requirements.txt"
+      username: "{{ svn_user }}"
+      password: "{{ svn_pwd }}"
+      export: true
+      force: true
+
+  - name: install jython libs
+    pip:
+      executable: /opt/jython/bin/pip
+      requirements: "{{ flute_dir }}/score/requirements.txt"
+  when: install_requirements
+
+- name: chown and chmod
+  file:
+    path: "{{ flute_dir }}/score"
+    owner: flute3
+    recurse: yes
+
+- name: copy flute config
+  template:
+    src: flute.xml.j2
+    dest: "{{ flute_dir }}/flute.xml"
+    mode: 0640
+    owner: flute3
+
+- name: remove old poi
+  file:
+    path: "{{ flute_dir }}/lib/{{ item }}"
+    state: absent
+  with_items:
+    - poi-3.11.jar
+    - poi-ooxml-3.11.jar
+    - poi-ooxml-3.14.jar
+    - poi-ooxml-schemas-3.11.jar
+  when: remove_old_poi
+
+- name: copy java libs
+  subversion:
+    repo: "{{ item }}/WEB-INF/lib"
+    dest: "{{ flute_dir }}/lib"
+    username: "{{ svn_user }}"
+    password: "{{ svn_pwd }}"
+    export: yes
+    force: yes
+  with_items: "{{ flute_java_libs }}"
+
+- name: starting flute
+  service:
+    name: flute
+    state: started

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://corchestra.ru/schema/fluteconfig.xsd">
+	<dbconnstring>{{ db_url }}</dbconnstring>
+	<dbuser>{{ db_name }}</dbuser>
+	<dbpassword>{{ db_pwd }}</dbpassword>
+	<neverstop>true</neverstop>
+	<retrywait>50000</retrywait>
+	<scorepath>
+	{%- for item in flute_scores %}{{ flute_dir }}/score/{{ item.name | default(item.path.split('/')[-2]) }}:{%- endfor %}</scorepath>
+	<pylibpath>/opt/jython/Lib:/opt/jython/Lib/site-packages</pylibpath>
+	<javalibpath>{{ flute_dir }}/lib</javalibpath>
+	<celestaproperties grainssettings.path="{{ flute_dir }}/score/grainsSettings.xml"/>
+{% for property in flute_extra_properties %}
+	<celestaproperties {{ property }}="{{ flute_extra_properties[property] }}"/>
+{% endfor %}
+
+	<skipdbupdate>true</skipdbupdate>
+
+{% if flute_xml_config.restport is defined %}
+	<restport>8080</restport>
+{% endif %}
+
+{% if flute_xml_config.sources is defined %}
+{% for source in flute_xml_config.sources %}
+	<{{ source.type }}>
+{% for attr in source.attrs %}
+		<{{attr}}>{{ source.attrs[attr] }}</{{attr}}>
+{% endfor %}
+	</{{ source.type }}>
+{% endfor %}
+{% endif %}
+
+</config>
