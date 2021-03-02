@@ -3,12 +3,10 @@ Flute backend
 
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-gingerte.flutebackend-blue.svg)](https://galaxy.ansible.com/gingerte/flutebackend/)
 
-Installation of [Course Orchestra Flute](https://github.com/CourseOrchestra/flute) (https://corchestra.ru/wiki/index.php?title=Flute)
-
 Requirements
 ------------
 
-Java 8 (Oracle)
+Java 8
 
 Role Variables
 --------------
